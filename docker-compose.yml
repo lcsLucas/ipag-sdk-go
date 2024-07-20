@@ -1,0 +1,16 @@
+services:
+  sdk:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sdk-go
+    stdin_open: true
+    tty: true
+    restart: on-failure
+    networks:
+      - sdk-network
+    volumes:
+      - .:/go/src/github.com/lcslucas/ipag-sdk-go
+networks:
+  sdk-network:
+    driver: bridge
