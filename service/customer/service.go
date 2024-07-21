@@ -12,10 +12,12 @@ type Service interface {
 	Update(ctx context.Context, customer *model.Customer) error
 	Find(ctx context.Context, id uint32) (model.Customer, error)
 	FindAll(ctx context.Context, filters map[string]interface{}) ([]model.Customer, error)
-	Delete(ctx context.Context, id uint32) (model.Customer, error)
+	Delete(ctx context.Context, id uint32) error
 }
 
 type customerService struct{}
+
+type ServiceMiddleware func(Service) Service
 
 func NewService() Service {
 	return &customerService{}
@@ -37,6 +39,6 @@ func (c *customerService) FindAll(ctx context.Context, filters map[string]interf
 	return []model.Customer{}, errors.New("not implemented")
 }
 
-func (c *customerService) Delete(ctx context.Context, id uint32) (model.Customer, error) {
-	return model.Customer{}, errors.New("not implemented")
+func (c *customerService) Delete(ctx context.Context, id uint32) error {
+	return errors.New("not implemented")
 }

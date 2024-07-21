@@ -3,10 +3,13 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"os"
 	"time"
 
+	"github.com/go-kit/log"
 	"github.com/lcslucas/ipag-sdk-go/pkg/model"
 	customerService "github.com/lcslucas/ipag-sdk-go/service/customer"
+	customerLogging "github.com/lcslucas/ipag-sdk-go/service/customer/log"
 	"github.com/lcslucas/ipag-sdk-go/utils"
 )
 
@@ -42,9 +45,15 @@ func main() {
 		ShippingAddress: addr,
 	}
 
+	var logger log.Logger
+	logger = log.NewLogfmtLogger(os.Stderr)
+	logger = log.NewSyncLogger(logger)
+	logger = log.With(logger, "caller", log.DefaultCaller, "ts", log.DefaultTimestampUTC)
+
 	var service customerService.Service
 	{
 		service = customerService.NewService()
+		service = customerLogging.LoggingMiddleware(logger)(service)
 	}
 
 	err := service.Save(ctx, &customer)
