@@ -3,7 +3,7 @@ package utils
 // Pretty prints the given data in a pretty format
 // This is useful for debugging purposes
 // Example usage:
-//  utils.Pretty(data)
+//  utils.PrintPretty(data)
 
 import (
 	"encoding/json"
