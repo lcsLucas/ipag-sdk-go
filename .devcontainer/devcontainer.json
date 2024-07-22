@@ -31,7 +31,7 @@
       "extensions": [
         "golang.Go",
         "formulahendry.code-runner",
-        "AmazonWebServices.aws-toolkit-vscode",
+        "AmazonWebServices.amazon-q-vscode",
         "streetsidesoftware.code-spell-checker",
         "streetsidesoftware.code-spell-checker-portuguese-brazilian"
       ]
