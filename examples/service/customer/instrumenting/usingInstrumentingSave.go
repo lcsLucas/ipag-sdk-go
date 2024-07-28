@@ -7,12 +7,11 @@ import (
 
 	"github.com/lcslucas/ipag-sdk-go/pkg/model"
 	customerService "github.com/lcslucas/ipag-sdk-go/service/customer"
-	instrumenting "github.com/lcslucas/ipag-sdk-go/service/customer/instrumenting"
 	"github.com/lcslucas/ipag-sdk-go/utils"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-func prepareInstrumenting() (cMethods *prometheus.CounterVec, lMethods instrumenting.LatencyMethods) {
+func prepareInstrumenting() (cMethods *prometheus.CounterVec, lMethods customerService.LatencyMethods) {
 	cMethods = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
 			Namespace: "ipag_sdk",
@@ -23,7 +22,7 @@ func prepareInstrumenting() (cMethods *prometheus.CounterVec, lMethods instrumen
 		[]string{"method"},
 	)
 
-	lMethods = instrumenting.LatencyMethods{
+	lMethods = customerService.LatencyMethods{
 		Save: prometheus.NewHistogram(
 			prometheus.HistogramOpts{
 				Namespace: "ipag_sdk",
@@ -113,8 +112,8 @@ func main() {
 
 	var service customerService.Service
 	{
-		service = customerService.NewService()
-		service = instrumenting.InstrumentingMiddleware(countsService, latencyService)(service)
+		service = customerService.NewService(nil)
+		service = customerService.InstrumentingMiddleware(countsService, latencyService)(service)
 	}
 
 	err := service.Save(ctx, &customer)
