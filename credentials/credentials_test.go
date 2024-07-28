@@ -6,7 +6,7 @@ import (
 	"github.com/lcslucas/ipag-sdk-go/credentials"
 )
 
-func TestConfig(t *testing.T) {
+func TestCredentials(t *testing.T) {
 	expected := struct {
 		apiID       string
 		apiKey      string

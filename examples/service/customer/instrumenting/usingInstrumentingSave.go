@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"time"
 
+	"github.com/lcslucas/ipag-sdk-go/config"
 	"github.com/lcslucas/ipag-sdk-go/pkg/model"
 	customerService "github.com/lcslucas/ipag-sdk-go/service/customer"
 	"github.com/lcslucas/ipag-sdk-go/utils"
@@ -112,7 +113,7 @@ func main() {
 
 	var service customerService.Service
 	{
-		service = customerService.NewService(nil)
+		service = customerService.NewService(config.Config{})
 		service = customerService.InstrumentingMiddleware(countsService, latencyService)(service)
 	}
 

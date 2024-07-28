@@ -1,13 +1,15 @@
 package client
 
+import "net/http"
+
 const (
-	GET     = "GET"
-	POST    = "POST"
-	PUT     = "PUT"
-	DELETE  = "DELETE"
-	PATCH   = "PATCH"
-	HEAD    = "HEAD"
-	OPTIONS = "OPTIONS"
+	GET     = http.MethodGet
+	POST    = http.MethodPost
+	PUT     = http.MethodPut
+	DELETE  = http.MethodDelete
+	PATCH   = http.MethodPatch
+	HEAD    = http.MethodHead
+	OPTIONS = http.MethodOptions
 )
 
 type Endpoint struct {
