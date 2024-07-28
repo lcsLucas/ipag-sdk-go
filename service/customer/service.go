@@ -4,8 +4,13 @@ import (
 	"context"
 	"errors"
 
+	"github.com/lcslucas/ipag-sdk-go/internal/client"
 	"github.com/lcslucas/ipag-sdk-go/pkg/model"
 )
+
+type contextKey string
+
+const contextEndpointKey contextKey = "customer_endpoint"
 
 type Service interface {
 	Save(ctx context.Context, customer *model.Customer) error
@@ -15,15 +20,57 @@ type Service interface {
 	Delete(ctx context.Context, id uint32) error
 }
 
-type customerService struct{}
+type customerService struct {
+	client client.HTTPClient
+}
 
 type ServiceMiddleware func(Service) Service
 
-func NewService() Service {
-	return &customerService{}
+func NewService(c client.HTTPClient) Service {
+	// config := struct {
+	// 	credentials credentials.Credentials
+	// 	request     struct {
+	// 		Headers map[string]string
+	// 		Timeout time.Duration
+	// 	}
+	// }{
+	// 	credentials: credentials.Credentials{
+	// 		ApiID:       "",
+	// 		ApiKey:      "",
+	// 		Environment: credentials.Environments.Sandbox,
+	// 		Version:     2,
+	// 	},
+	// }
+
+	if c == nil {
+		c = client.NewHTTPClient()
+	}
+
+	return EndpointMiddleware()(&customerService{
+		client: c,
+	})
+
 }
 
 func (c *customerService) Save(ctx context.Context, customer *model.Customer) error {
+	// endpoint, ok := ctx.Value(contextEndpointKey).(client.Endpoint)
+
+	// if !ok {
+	// 	return errors.New("endpoint not found in context")
+	// }
+
+	// requestURL := fmt.Sprintf("%s/%s", endpoint., endpoint.Path)
+
+	// req, err := http.NewRequestWithContext(ctx, endpoint.Method, endpoint.URI, nil)
+
+	// if err != nil {
+	// 	return err
+	// }
+
+	// res, err := c.client.Do()
+
+	// fmt.Println(res, err)
+
 	return errors.New("not implemented")
 }
 

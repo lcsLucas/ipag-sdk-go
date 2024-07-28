@@ -1,11 +1,10 @@
-package instrumenting
+package customer
 
 import (
 	"context"
 	"time"
 
 	"github.com/lcslucas/ipag-sdk-go/pkg/model"
-	"github.com/lcslucas/ipag-sdk-go/service/customer"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -20,11 +19,11 @@ type LatencyMethods struct {
 type instrumentingMiddleware struct {
 	countMethods   *prometheus.CounterVec
 	latencyMethods LatencyMethods
-	next           customer.Service
+	next           Service
 }
 
-func InstrumentingMiddleware(cMethods *prometheus.CounterVec, lMethods LatencyMethods) customer.ServiceMiddleware {
-	return func(next customer.Service) customer.Service {
+func InstrumentingMiddleware(cMethods *prometheus.CounterVec, lMethods LatencyMethods) ServiceMiddleware {
+	return func(next Service) Service {
 		return instrumentingMiddleware{
 			countMethods:   cMethods,
 			latencyMethods: lMethods,

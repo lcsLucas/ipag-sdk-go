@@ -1,9 +1,9 @@
-package config_test
+package credentials_test
 
 import (
 	"testing"
 
-	"github.com/lcslucas/ipag-sdk-go/config"
+	"github.com/lcslucas/ipag-sdk-go/credentials"
 )
 
 func TestConfig(t *testing.T) {
@@ -15,11 +15,11 @@ func TestConfig(t *testing.T) {
 	}{
 		apiID:       "123456",
 		apiKey:      "ABC123",
-		environment: config.Environments.Production,
+		environment: credentials.Environments.Production,
 		version:     2,
 	}
 
-	cfg := config.Config{
+	cfg := credentials.Credentials{
 		ApiID:       expected.apiID,
 		ApiKey:      expected.apiKey,
 		Environment: expected.environment,
@@ -52,11 +52,11 @@ func TestEnvironments(t *testing.T) {
 		production: `https://api.ipag.com.br`,
 	}
 
-	if config.Environments.Sandbox != expectedEnvironments.sandbox {
-		t.Errorf("Expected Sandbox URL Environment to be %s, but got %s", expectedEnvironments.sandbox, config.Environments.Sandbox)
+	if credentials.Environments.Sandbox != expectedEnvironments.sandbox {
+		t.Errorf("Expected Sandbox URL Environment to be %s, but got %s", expectedEnvironments.sandbox, credentials.Environments.Sandbox)
 	}
 
-	if config.Environments.Production != expectedEnvironments.production {
-		t.Errorf("Expected Production URL Environment to be %s, but got %s", expectedEnvironments.production, config.Environments.Production)
+	if credentials.Environments.Production != expectedEnvironments.production {
+		t.Errorf("Expected Production URL Environment to be %s, but got %s", expectedEnvironments.production, credentials.Environments.Production)
 	}
 }

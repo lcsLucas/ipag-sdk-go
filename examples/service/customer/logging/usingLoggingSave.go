@@ -9,7 +9,6 @@ import (
 	"github.com/go-kit/log"
 	"github.com/lcslucas/ipag-sdk-go/pkg/model"
 	customerService "github.com/lcslucas/ipag-sdk-go/service/customer"
-	customerLogging "github.com/lcslucas/ipag-sdk-go/service/customer/log"
 	"github.com/lcslucas/ipag-sdk-go/utils"
 )
 
@@ -52,8 +51,8 @@ func main() {
 
 	var service customerService.Service
 	{
-		service = customerService.NewService()
-		service = customerLogging.LoggingMiddleware(logger)(service)
+		service = customerService.NewService(nil)
+		service = customerService.LoggingMiddleware(logger)(service)
 	}
 
 	err := service.Save(ctx, &customer)

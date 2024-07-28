@@ -1,6 +1,6 @@
-package config
+package credentials
 
-type Config struct {
+type Credentials struct {
 	ApiID       string
 	ApiKey      string
 	Environment string

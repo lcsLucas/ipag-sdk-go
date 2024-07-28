@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/lcslucas/ipag-sdk-go/config"
+	"github.com/lcslucas/ipag-sdk-go/credentials"
 	"github.com/lcslucas/ipag-sdk-go/utils"
 )
 
@@ -12,10 +12,10 @@ const (
 )
 
 func main() {
-	cfg := config.Config{
+	cfg := credentials.Credentials{
 		ApiID:       apiID,
 		ApiKey:      apiKey,
-		Environment: config.Environments.Sandbox,
+		Environment: credentials.Environments.Sandbox,
 		Version:     version,
 	}
 
