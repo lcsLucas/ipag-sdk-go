@@ -3,9 +3,9 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"net/http"
 	"time"
 
+	"github.com/lcslucas/ipag-sdk-go/config"
 	"github.com/lcslucas/ipag-sdk-go/pkg/model"
 	customerService "github.com/lcslucas/ipag-sdk-go/service/customer"
 	"github.com/lcslucas/ipag-sdk-go/utils"
@@ -45,9 +45,7 @@ func main() {
 
 	var service customerService.Service
 	{
-		service = customerService.NewService(&http.Client{
-			Timeout: time.Second * 30,
-		})
+		service = customerService.NewService(config.Config{})
 	}
 
 	err := service.Save(ctx, &customer)

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 
+	"github.com/lcslucas/ipag-sdk-go/config"
 	"github.com/lcslucas/ipag-sdk-go/internal/client"
 	"github.com/lcslucas/ipag-sdk-go/pkg/model"
 )
@@ -26,25 +27,8 @@ type customerService struct {
 
 type ServiceMiddleware func(Service) Service
 
-func NewService(c client.HTTPClient) Service {
-	// config := struct {
-	// 	credentials credentials.Credentials
-	// 	request     struct {
-	// 		Headers map[string]string
-	// 		Timeout time.Duration
-	// 	}
-	// }{
-	// 	credentials: credentials.Credentials{
-	// 		ApiID:       "",
-	// 		ApiKey:      "",
-	// 		Environment: credentials.Environments.Sandbox,
-	// 		Version:     2,
-	// 	},
-	// }
-
-	if c == nil {
-		c = client.NewHTTPClient()
-	}
+func NewService(config config.Config) Service {
+	c := client.NewHTTPClient()
 
 	return EndpointMiddleware()(&customerService{
 		client: c,
