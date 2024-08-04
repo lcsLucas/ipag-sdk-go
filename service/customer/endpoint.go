@@ -16,11 +16,11 @@ type endpoints struct {
 }
 
 var Endpoints = endpoints{
-	Save:    client.NewEndpoint(client.POST, "/v1/customers"),
-	Update:  client.NewEndpoint(client.PUT, "/v1/customers/{id}"),
-	Find:    client.NewEndpoint(client.GET, "/v1/customers/{id}"),
-	FindAll: client.NewEndpoint(client.GET, "/v1/customers"),
-	Delete:  client.NewEndpoint(client.DELETE, "/v1/customers/{id}"),
+	Save:    client.NewEndpoint(client.POST, "v1/customers"),
+	Update:  client.NewEndpoint(client.PUT, "v1/customers/{id}"),
+	Find:    client.NewEndpoint(client.GET, "v1/customers/{id}"),
+	FindAll: client.NewEndpoint(client.GET, "v1/customers"),
+	Delete:  client.NewEndpoint(client.DELETE, "v1/customers/{id}"),
 }
 
 type endpointMiddleware struct {
@@ -36,7 +36,7 @@ func EndpointMiddleware() ServiceMiddleware {
 }
 
 func contextWithEndpoint(ctx context.Context, endpoint client.Endpoint) context.Context {
-	return context.WithValue(ctx, contextEndpointKey, endpoint)
+	return context.WithValue(ctx, ContextEndpointKey, endpoint)
 }
 
 func (mw endpointMiddleware) Save(ctx context.Context, customer *model.Customer) (err error) {
