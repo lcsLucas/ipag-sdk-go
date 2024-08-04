@@ -1,4 +1,4 @@
-package customer
+package middleware
 
 import (
 	"context"
@@ -8,15 +8,16 @@ import (
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
 	"github.com/lcslucas/ipag-sdk-go/pkg/model"
+	"github.com/lcslucas/ipag-sdk-go/service/customer"
 )
 
 type loggingMiddleware struct {
-	next   Service
+	next   customer.Service
 	logger log.Logger
 }
 
-func LoggingMiddleware(logger log.Logger) ServiceMiddleware {
-	return func(next Service) Service {
+func LoggingMiddleware(logger log.Logger) customer.ServiceMiddleware {
+	return func(next customer.Service) customer.Service {
 		return loggingMiddleware{next, logger}
 	}
 }

@@ -2,7 +2,11 @@ package customer
 
 import (
 	"context"
+	"encoding/base64"
 	"errors"
+	"fmt"
+	"net/http"
+	"net/url"
 
 	"github.com/lcslucas/ipag-sdk-go/config"
 	"github.com/lcslucas/ipag-sdk-go/internal/client"
@@ -11,7 +15,9 @@ import (
 
 type contextKey string
 
-const contextEndpointKey contextKey = "customer_endpoint"
+const (
+	ContextEndpointKey contextKey = "customer-endpoint"
+)
 
 type Service interface {
 	Save(ctx context.Context, customer *model.Customer) error
@@ -23,33 +29,47 @@ type Service interface {
 
 type customerService struct {
 	client client.HTTPClient
+	config config.Config
 }
 
 type ServiceMiddleware func(Service) Service
 
 func NewService(config config.Config) Service {
-	c := client.NewHTTPClient()
-
 	return EndpointMiddleware()(&customerService{
-		client: c,
+		client: client.NewHTTPClient(),
+		config: config,
 	})
 
 }
 
 func (c *customerService) Save(ctx context.Context, customer *model.Customer) error {
-	// endpoint, ok := ctx.Value(contextEndpointKey).(client.Endpoint)
+	endpoint, ok := ctx.Value(ContextEndpointKey).(client.Endpoint)
 
-	// if !ok {
-	// 	return errors.New("endpoint not found in context")
-	// }
+	if !ok {
+		return errors.New("endpoint not found in context")
+	}
 
-	// requestURL := fmt.Sprintf("%s/%s", endpoint., endpoint.Path)
+	//TODO: mover tudo esse código para uma função que prepara Request
+	endpointURL, err := url.Parse(fmt.Sprintf("%s/%s", c.config.Credentials.Environment, endpoint.URI))
 
-	// req, err := http.NewRequestWithContext(ctx, endpoint.Method, endpoint.URI, nil)
+	if err != nil {
+		return errors.New("endpoint url unprocessable in context")
+	}
 
-	// if err != nil {
-	// 	return err
-	// }
+	req, err := http.NewRequestWithContext(ctx, endpoint.Method, endpointURL.String(), nil)
+
+	if err != nil {
+		return err
+	}
+
+	userBasicAuth := fmt.Sprintf("%s:%s", c.config.Credentials.ApiID, c.config.Credentials.ApiKey)
+
+	req.Header.Add("Content-Type", "application/json")
+	req.Header.Add("User-Agent", "github.com/lcslucas/ipag-sdk-go")
+	req.Header.Add("x-api-version", fmt.Sprintf("%d", c.config.Credentials.Version))
+	req.Header.Add("Authorization", fmt.Sprintf("Basic %s", base64.StdEncoding.EncodeToString([]byte(userBasicAuth))))
+
+	fmt.Println(req.Header)
 
 	// res, err := c.client.Do()
 

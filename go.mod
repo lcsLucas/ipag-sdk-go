@@ -4,6 +4,7 @@ go 1.20
 
 require (
 	github.com/go-kit/log v0.2.1
+	github.com/joho/godotenv v1.5.1
 	github.com/prometheus/client_golang v1.19.1
 )
 

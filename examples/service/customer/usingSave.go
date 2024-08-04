@@ -3,9 +3,13 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"log"
+	"os"
 	"time"
 
+	"github.com/joho/godotenv"
 	"github.com/lcslucas/ipag-sdk-go/config"
+	"github.com/lcslucas/ipag-sdk-go/credentials"
 	"github.com/lcslucas/ipag-sdk-go/pkg/model"
 	customerService "github.com/lcslucas/ipag-sdk-go/service/customer"
 	"github.com/lcslucas/ipag-sdk-go/utils"
@@ -45,7 +49,17 @@ func main() {
 
 	var service customerService.Service
 	{
-		service = customerService.NewService(config.Config{})
+		service = customerService.NewService(config.Config{
+			Credentials: credentials.Credentials{
+				ApiID:       os.Getenv("API_ID"),
+				ApiKey:      os.Getenv("API_KEY"),
+				Environment: credentials.Environments.Sandbox,
+				Version:     2,
+			},
+			Client: config.ClientConfig{
+				Timeout: 30 * time.Second,
+			},
+		})
 	}
 
 	err := service.Save(ctx, &customer)
@@ -57,4 +71,11 @@ func main() {
 	// Do something with the customer
 	utils.PrintPretty(customer)
 
+}
+
+func init() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
 }
