@@ -3,24 +3,26 @@ package customer
 import (
 	"context"
 
-	"github.com/lcslucas/ipag-sdk-go/internal/client"
+	"github.com/lcslucas/ipag-sdk-go/internal/http"
 	"github.com/lcslucas/ipag-sdk-go/pkg/model"
 )
 
 type endpoints struct {
-	Save    client.Endpoint
-	Update  client.Endpoint
-	Find    client.Endpoint
-	FindAll client.Endpoint
-	Delete  client.Endpoint
+	Save    *http.Endpoint
+	Update  *http.Endpoint
+	Find    *http.Endpoint
+	FindAll *http.Endpoint
+	Delete  *http.Endpoint
 }
 
 var Endpoints = endpoints{
-	Save:    client.NewEndpoint(client.POST, "v1/customers"),
-	Update:  client.NewEndpoint(client.PUT, "v1/customers/{id}"),
-	Find:    client.NewEndpoint(client.GET, "v1/customers/{id}"),
-	FindAll: client.NewEndpoint(client.GET, "v1/customers"),
-	Delete:  client.NewEndpoint(client.DELETE, "v1/customers/{id}"),
+	Save: http.NewEndpoint(
+		http.WithMethod(http.POST),
+		http.WithURI("service/resources/customers")),
+	// Update:  client.NewEndpoint(client.PUT, "v1/customers/{id}"),
+	// Find:    client.NewEndpoint(client.GET, "v1/customers/{id}"),
+	// FindAll: client.NewEndpoint(client.GET, "v1/customers"),
+	// Delete:  client.NewEndpoint(client.DELETE, "v1/customers/{id}"),
 }
 
 type endpointMiddleware struct {
@@ -35,7 +37,7 @@ func EndpointMiddleware() ServiceMiddleware {
 	}
 }
 
-func contextWithEndpoint(ctx context.Context, endpoint client.Endpoint) context.Context {
+func contextWithEndpoint(ctx context.Context, endpoint *http.Endpoint) context.Context {
 	return context.WithValue(ctx, ContextEndpointKey, endpoint)
 }
 

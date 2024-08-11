@@ -2,14 +2,12 @@ package customer
 
 import (
 	"context"
-	"encoding/base64"
 	"errors"
 	"fmt"
-	"net/http"
-	"net/url"
+	"io"
 
 	"github.com/lcslucas/ipag-sdk-go/config"
-	"github.com/lcslucas/ipag-sdk-go/internal/client"
+	"github.com/lcslucas/ipag-sdk-go/internal/http"
 	"github.com/lcslucas/ipag-sdk-go/pkg/model"
 )
 
@@ -28,7 +26,7 @@ type Service interface {
 }
 
 type customerService struct {
-	client client.HTTPClient
+	client http.HTTPClient
 	config config.Config
 }
 
@@ -36,40 +34,40 @@ type ServiceMiddleware func(Service) Service
 
 func NewService(config config.Config) Service {
 	return EndpointMiddleware()(&customerService{
-		client: client.NewHTTPClient(),
+		client: http.NewHTTPClient(),
 		config: config,
 	})
 
 }
 
 func (c *customerService) Save(ctx context.Context, customer *model.Customer) error {
-	endpoint, ok := ctx.Value(ContextEndpointKey).(client.Endpoint)
+	endpoint, ok := ctx.Value(ContextEndpointKey).(*http.Endpoint)
 
 	if !ok {
 		return errors.New("endpoint not found in context")
 	}
 
-	//TODO: mover tudo esse código para uma função que prepara Request
-	endpointURL, err := url.Parse(fmt.Sprintf("%s/%s", c.config.Credentials.Environment, endpoint.URI))
-
-	if err != nil {
-		return errors.New("endpoint url unprocessable in context")
-	}
-
-	req, err := http.NewRequestWithContext(ctx, endpoint.Method, endpointURL.String(), nil)
+	request, err := c.client.BuilderRequest(ctx, endpoint, c.config)
 
 	if err != nil {
 		return err
 	}
 
-	userBasicAuth := fmt.Sprintf("%s:%s", c.config.Credentials.ApiID, c.config.Credentials.ApiKey)
+	response, err := c.client.Do(request)
 
-	req.Header.Add("Content-Type", "application/json")
-	req.Header.Add("User-Agent", "github.com/lcslucas/ipag-sdk-go")
-	req.Header.Add("x-api-version", fmt.Sprintf("%d", c.config.Credentials.Version))
-	req.Header.Add("Authorization", fmt.Sprintf("Basic %s", base64.StdEncoding.EncodeToString([]byte(userBasicAuth))))
+	if err != nil {
+		return err
+	}
 
-	fmt.Println(req.Header)
+	defer response.Body.Close()
+
+	data, err := io.ReadAll(response.Body)
+
+	if err != nil {
+		return err
+	}
+
+	fmt.Println(data, response)
 
 	// res, err := c.client.Do()
 
