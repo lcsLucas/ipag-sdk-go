@@ -1,7 +1,9 @@
 package customer
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -47,7 +49,13 @@ func (c *customerService) Save(ctx context.Context, customer *model.Customer) er
 		return errors.New("endpoint not found in context")
 	}
 
-	request, err := c.client.BuilderRequest(ctx, endpoint, c.config)
+	requestData, err := json.Marshal(customer)
+
+	if err != nil {
+		return fmt.Errorf("failed to parse request data: %w", err)
+	}
+
+	request, err := c.client.BuilderRequest(ctx, endpoint, c.config, bytes.NewBuffer(requestData))
 
 	if err != nil {
 		return err
@@ -59,21 +67,36 @@ func (c *customerService) Save(ctx context.Context, customer *model.Customer) er
 		return err
 	}
 
+	//TODO: refactor this
 	defer response.Body.Close()
-
-	data, err := io.ReadAll(response.Body)
+	body, err := io.ReadAll(response.Body)
 
 	if err != nil {
 		return err
 	}
 
-	fmt.Println(data, response)
+	if response.StatusCode < 200 || response.StatusCode >= 300 {
+		var errorData any
+		err = fmt.Errorf("request failed with status code %d", response.StatusCode)
 
-	// res, err := c.client.Do()
+		if err := json.Unmarshal(body, &errorData); err != nil {
+			return fmt.Errorf("failed to parse error data: %w", err)
+		}
 
-	// fmt.Println(res, err)
+		marshalErrorData, _ := json.MarshalIndent(errorData, "", "  ")
 
-	return errors.New("not implemented")
+		err = fmt.Errorf("%w: %s", err, marshalErrorData)
+
+		return err
+	}
+
+	err = json.Unmarshal(body, customer)
+
+	if err != nil {
+		err = fmt.Errorf("failed to parse response data: %w", err)
+	}
+
+	return err
 }
 
 func (c *customerService) Update(ctx context.Context, customer *model.Customer) error {
