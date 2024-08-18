@@ -1,6 +1,7 @@
 package http
 
 import (
+	"bytes"
 	"context"
 	"encoding/base64"
 	"errors"
@@ -18,7 +19,7 @@ const (
 
 type HTTPClient interface {
 	Do(req *http.Request) (*http.Response, error)
-	BuilderRequest(ctx context.Context, endpoint *Endpoint, config config.Config) (*http.Request, error)
+	BuilderRequest(ctx context.Context, endpoint *Endpoint, config config.Config, body *bytes.Buffer) (*http.Request, error)
 }
 
 type httpClient struct {
@@ -36,14 +37,14 @@ func (httpClient *httpClient) Do(req *http.Request) (*http.Response, error) {
 	return httpClient.client.Do(req)
 }
 
-func (httpClient *httpClient) BuilderRequest(ctx context.Context, endpoint *Endpoint, config config.Config) (*http.Request, error) {
+func (httpClient *httpClient) BuilderRequest(ctx context.Context, endpoint *Endpoint, config config.Config, body *bytes.Buffer) (*http.Request, error) {
 	endpointURL, err := url.Parse(fmt.Sprintf("%s/%s", config.Credentials.Environment, endpoint.URI))
 
 	if err != nil {
 		return nil, errors.New("endpoint url unprocessable in context")
 	}
 
-	request, err := http.NewRequestWithContext(ctx, string(endpoint.Method), endpointURL.String(), nil)
+	request, err := http.NewRequestWithContext(ctx, string(endpoint.Method), endpointURL.String(), body)
 
 	if err != nil {
 		return nil, err

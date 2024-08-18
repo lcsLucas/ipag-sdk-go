@@ -20,7 +20,7 @@ func main() {
 
 	addr := &model.Address{
 		Street:     "123 Main St",
-		Number:     json.Number("100"),
+		Number:     string(json.Number("100")),
 		District:   "Downtown",
 		Complement: "Apt 4B",
 		City:       "Sample City",
@@ -35,7 +35,7 @@ func main() {
 		IsActive:        true,
 		Email:           "johndoe@example.com",
 		Phone:           "555-555-5555",
-		CpfCnpj:         "123.456.789-00",
+		CpfCnpj:         "748.980.410-86",
 		TaxReceipt:      "123456789",
 		BusinessName:    "John's Business",
 		BirthDate:       time.Date(1990, time.January, 1, 0, 0, 0, 0, time.UTC),
