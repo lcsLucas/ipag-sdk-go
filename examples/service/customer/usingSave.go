@@ -20,7 +20,7 @@ func main() {
 
 	addr := &model.Address{
 		Street:     "123 Main St",
-		Number:     string(json.Number("100")),
+		Number:     json.Number("100"),
 		District:   "Downtown",
 		Complement: "Apt 4B",
 		City:       "Sample City",
