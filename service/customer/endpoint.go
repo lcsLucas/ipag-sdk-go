@@ -31,7 +31,7 @@ type endpointMiddleware struct {
 
 func EndpointMiddleware() ServiceMiddleware {
 	return func(next Service) Service {
-		return endpointMiddleware{
+		return &endpointMiddleware{
 			next: next,
 		}
 	}

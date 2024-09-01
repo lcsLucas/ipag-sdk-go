@@ -1,12 +1,8 @@
 package customer
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
 	"errors"
-	"fmt"
-	"io"
 
 	"github.com/lcslucas/ipag-sdk-go/config"
 	"github.com/lcslucas/ipag-sdk-go/internal/http"
@@ -17,6 +13,7 @@ type contextKey string
 
 const (
 	ContextEndpointKey contextKey = "customer-endpoint"
+	ContextRequestKey  contextKey = "customer-request"
 )
 
 type Service interface {
@@ -35,68 +32,59 @@ type customerService struct {
 type ServiceMiddleware func(Service) Service
 
 func NewService(config config.Config) Service {
-	return EndpointMiddleware()(&customerService{
-		client: http.NewHTTPClient(),
-		config: config,
-	})
-
+	return EndpointMiddleware()(
+		SerializeMiddleware()(
+			&customerService{
+				client: http.NewHTTPClient(),
+				config: config,
+			}))
 }
 
 func (c *customerService) Save(ctx context.Context, customer *model.Customer) error {
-	endpoint, ok := ctx.Value(ContextEndpointKey).(*http.Endpoint)
 
-	if !ok {
-		return errors.New("endpoint not found in context")
-	}
+	// request, err := c.client.BuilderRequest(ctx, endpoint, c.config, bytes.NewBuffer(requestData))
 
-	requestData, err := json.Marshal(customer)
+	// if err != nil {
+	// 	return err
+	// }
 
-	if err != nil {
-		return fmt.Errorf("failed to parse request data: %w", err)
-	}
+	// response, err := c.client.Do(request)
 
-	request, err := c.client.BuilderRequest(ctx, endpoint, c.config, bytes.NewBuffer(requestData))
+	// if err != nil {
+	// 	return err
+	// }
 
-	if err != nil {
-		return err
-	}
+	// //TODO: refactor this
+	// defer response.Body.Close()
+	// body, err := io.ReadAll(response.Body)
 
-	response, err := c.client.Do(request)
+	// if err != nil {
+	// 	return err
+	// }
 
-	if err != nil {
-		return err
-	}
+	// if response.StatusCode < 200 || response.StatusCode >= 300 {
+	// 	var errorData any
+	// 	err = fmt.Errorf("request failed with status code %d", response.StatusCode)
 
-	//TODO: refactor this
-	defer response.Body.Close()
-	body, err := io.ReadAll(response.Body)
+	// 	if err := json.Unmarshal(body, &errorData); err != nil {
+	// 		return fmt.Errorf("failed to parse error data: %w", err)
+	// 	}
 
-	if err != nil {
-		return err
-	}
+	// 	marshalErrorData, _ := json.MarshalIndent(errorData, "", "  ")
 
-	if response.StatusCode < 200 || response.StatusCode >= 300 {
-		var errorData any
-		err = fmt.Errorf("request failed with status code %d", response.StatusCode)
+	// 	err = fmt.Errorf("%w: %s", err, marshalErrorData)
 
-		if err := json.Unmarshal(body, &errorData); err != nil {
-			return fmt.Errorf("failed to parse error data: %w", err)
-		}
+	// 	return err
+	// }
 
-		marshalErrorData, _ := json.MarshalIndent(errorData, "", "  ")
+	// err = json.Unmarshal(body, customer)
 
-		err = fmt.Errorf("%w: %s", err, marshalErrorData)
+	// if err != nil {
+	// 	err = fmt.Errorf("failed to parse response data: %w", err)
+	// }
 
-		return err
-	}
-
-	err = json.Unmarshal(body, customer)
-
-	if err != nil {
-		err = fmt.Errorf("failed to parse response data: %w", err)
-	}
-
-	return err
+	// return err
+	return nil
 }
 
 func (c *customerService) Update(ctx context.Context, customer *model.Customer) error {
@@ -114,3 +102,28 @@ func (c *customerService) FindAll(ctx context.Context, filters map[string]interf
 func (c *customerService) Delete(ctx context.Context, id uint32) error {
 	return errors.New("not implemented")
 }
+
+/**
+func (httpClient *httpClient) BuilderRequest(ctx context.Context, endpoint *Endpoint, config config.Config, body *bytes.Buffer) (*http.Request, error) {
+	endpointURL, err := url.Parse(fmt.Sprintf("%s/%s", config.Credentials.Environment, endpoint.URI))
+
+	if err != nil {
+		return nil, errors.New("endpoint url unprocessable in context")
+	}
+
+	request, err := http.NewRequestWithContext(ctx, string(endpoint.Method), endpointURL.String(), body)
+
+	if err != nil {
+		return nil, err
+	}
+
+	userBasicAuth := fmt.Sprintf("%s:%s", config.Credentials.ApiID, config.Credentials.ApiKey)
+
+	request.Header.Add("Content-Type", ContentTypeDefault)
+	request.Header.Add("User-Agent", UserAgentDefault)
+	request.Header.Add("x-api-version", fmt.Sprintf("%d", config.Credentials.Version))
+	request.Header.Add("Authorization", fmt.Sprintf("Basic %s", base64.StdEncoding.EncodeToString([]byte(userBasicAuth))))
+
+	return request, nil
+}
+*/
