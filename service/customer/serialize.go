@@ -49,7 +49,7 @@ func (sw serializeMiddleware) Save(ctx context.Context, customer *model.Customer
 		return fmt.Errorf("failed to parse endpoint url: %w", err)
 	}
 
-	request, err := http.NewRequestWithContext(ctx, "POST", endpointURL.String(), bytes.NewBuffer(requestData))
+	request, err := http.NewRequestWithContext(ctx, string(internalHttp.POST), endpointURL.String(), bytes.NewBuffer(requestData))
 
 	if err != nil {
 		return fmt.Errorf("failed to create request: %w", err)
