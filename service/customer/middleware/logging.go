@@ -7,6 +7,7 @@ import (
 
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
+	"github.com/lcslucas/ipag-sdk-go/config"
 	"github.com/lcslucas/ipag-sdk-go/pkg/model"
 	"github.com/lcslucas/ipag-sdk-go/service/customer"
 )
@@ -20,6 +21,10 @@ func LoggingMiddleware(logger log.Logger) customer.ServiceMiddleware {
 	return func(next customer.Service) customer.Service {
 		return loggingMiddleware{next, logger}
 	}
+}
+
+func (mw loggingMiddleware) Config() config.Config {
+	return mw.next.Config()
 }
 
 func (mw loggingMiddleware) Save(ctx context.Context, customer *model.Customer) (err error) {

@@ -10,16 +10,17 @@ import (
 	"net/http"
 	"net/url"
 
+	"github.com/lcslucas/ipag-sdk-go/config"
 	internalHttp "github.com/lcslucas/ipag-sdk-go/internal/http"
 	"github.com/lcslucas/ipag-sdk-go/pkg/model"
 )
 
 type serializeMiddleware struct {
-	next *customerService
+	next Service
 }
 
-func SerializeMiddleware() func(*customerService) Service {
-	return func(next *customerService) Service {
+func SerializeMiddleware() ServiceMiddleware {
+	return func(next Service) Service {
 		return &serializeMiddleware{
 			next: next,
 		}
@@ -28,6 +29,10 @@ func SerializeMiddleware() func(*customerService) Service {
 
 func contextWithRequest(ctx context.Context, r *http.Request) context.Context {
 	return context.WithValue(ctx, ContextRequestKey, r)
+}
+
+func (sw serializeMiddleware) Config() config.Config {
+	return sw.next.Config()
 }
 
 func (sw serializeMiddleware) Save(ctx context.Context, customer *model.Customer) (err error) {
@@ -43,7 +48,7 @@ func (sw serializeMiddleware) Save(ctx context.Context, customer *model.Customer
 		return fmt.Errorf("failed to parse request data: %w", err)
 	}
 
-	endpointURL, err := url.Parse(fmt.Sprintf("%s/%s", sw.next.config.Credentials.Environment, endpoint.URI))
+	endpointURL, err := url.Parse(fmt.Sprintf("%s/%s", sw.Config().Credentials.Environment, endpoint.URI))
 
 	if err != nil {
 		return fmt.Errorf("failed to parse endpoint url: %w", err)
@@ -55,11 +60,11 @@ func (sw serializeMiddleware) Save(ctx context.Context, customer *model.Customer
 		return fmt.Errorf("failed to create request: %w", err)
 	}
 
-	basicAuth := fmt.Sprintf("%s:%s", sw.next.config.Credentials.ApiID, sw.next.config.Credentials.ApiKey)
+	basicAuth := fmt.Sprintf("%s:%s", sw.Config().Credentials.ApiID, sw.Config().Credentials.ApiKey)
 
 	request.Header.Add("Content-Type", internalHttp.ContentTypeDefault)
 	request.Header.Add("User-Agent", internalHttp.UserAgentDefault)
-	request.Header.Add("x-api-version", fmt.Sprintf("%d", sw.next.config.Credentials.Version))
+	request.Header.Add("x-api-version", fmt.Sprintf("%d", sw.Config().Credentials.Version))
 	request.Header.Add("Authorization", fmt.Sprintf("Basic %s", base64.StdEncoding.EncodeToString([]byte(basicAuth))))
 
 	ctxRequest := contextWithRequest(ctx, request)

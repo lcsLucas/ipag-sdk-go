@@ -10,7 +10,7 @@ import (
 func TestAddressSerialization(t *testing.T) {
 	addr := model.Address{
 		Street:     "123 Main St",
-		Number:     json.Number("100"),
+		Number:     "100",
 		District:   "Downtown",
 		Complement: "Apt 4B",
 		City:       "Sample City",
