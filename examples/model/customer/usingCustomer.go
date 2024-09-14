@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"time"
 
 	"github.com/lcslucas/ipag-sdk-go/pkg/model"
@@ -9,9 +8,12 @@ import (
 )
 
 func main() {
+
+	tBirthDate := time.Date(1990, time.January, 1, 0, 0, 0, 0, time.UTC)
+
 	addr := &model.Address{
 		Street:     "123 Main St",
-		Number:     json.Number("100"),
+		Number:     "100",
 		District:   "Downtown",
 		Complement: "Apt 4B",
 		City:       "Sample City",
@@ -29,10 +31,8 @@ func main() {
 		CpfCnpj:         "123.456.789-00",
 		TaxReceipt:      "123456789",
 		BusinessName:    "John's Business",
-		BirthDate:       time.Date(1990, time.January, 1, 0, 0, 0, 0, time.UTC),
+		BirthDate:       &tBirthDate,
 		Ip:              "192.168.1.1",
-		CreatedAt:       time.Now(),
-		UpdatedAt:       time.Now(),
 		Address:         addr,
 		BillingAddress:  addr,
 		ShippingAddress: addr,

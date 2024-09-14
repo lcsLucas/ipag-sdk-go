@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/lcslucas/ipag-sdk-go/config"
 	"github.com/lcslucas/ipag-sdk-go/pkg/model"
 	"github.com/lcslucas/ipag-sdk-go/service/customer"
 	"github.com/prometheus/client_golang/prometheus"
@@ -38,6 +39,10 @@ func (mw instrumentingMiddleware) registerGeralMetrics(next func(time.Time)) fun
 		mw.countMethods.WithLabelValues("total").Inc()
 		next(begin)
 	}
+}
+
+func (mw instrumentingMiddleware) Config() config.Config {
+	return mw.next.Config()
 }
 
 func (mw instrumentingMiddleware) Save(ctx context.Context, customer *model.Customer) (err error) {

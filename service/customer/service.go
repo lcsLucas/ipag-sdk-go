@@ -18,6 +18,7 @@ type contextKey string
 const (
 	ContextEndpointKey contextKey = "customer-endpoint"
 	ContextRequestKey  contextKey = "customer-request"
+	ContextResponseKey contextKey = "customer-response"
 )
 
 type Service interface {
@@ -26,6 +27,7 @@ type Service interface {
 	Find(ctx context.Context, id uint32) (model.Customer, error)
 	FindAll(ctx context.Context, filters map[string]interface{}) ([]model.Customer, error)
 	Delete(ctx context.Context, id uint32) error
+	Config() config.Config
 }
 
 type customerService struct {
@@ -36,12 +38,25 @@ type customerService struct {
 type ServiceMiddleware func(Service) Service
 
 func NewService(config config.Config) Service {
-	return EndpointMiddleware()(
-		SerializeMiddleware()(
-			&customerService{
-				client: internalHttp.NewHTTPClient(),
-				config: config,
-			}))
+	baseService := &customerService{
+		client: internalHttp.NewHTTPClient(),
+		config: config,
+	}
+
+	return chain(baseService, SerializeMiddleware(), EndpointMiddleware())
+
+}
+
+func chain(service Service, middlewares ...ServiceMiddleware) Service {
+	for _, mw := range middlewares {
+		service = mw(service)
+	}
+
+	return service
+}
+
+func (c *customerService) Config() config.Config {
+	return c.config
 }
 
 func (c *customerService) Save(ctx context.Context, customer *model.Customer) error {
@@ -57,8 +72,8 @@ func (c *customerService) Save(ctx context.Context, customer *model.Customer) er
 		return err
 	}
 
-	//TODO: refactor this: transfer to deserialize
 	defer response.Body.Close()
+
 	body, err := io.ReadAll(response.Body)
 
 	if err != nil {

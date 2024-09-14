@@ -3,6 +3,7 @@ package customer
 import (
 	"context"
 
+	"github.com/lcslucas/ipag-sdk-go/config"
 	"github.com/lcslucas/ipag-sdk-go/internal/http"
 	"github.com/lcslucas/ipag-sdk-go/pkg/model"
 )
@@ -39,6 +40,10 @@ func EndpointMiddleware() ServiceMiddleware {
 
 func contextWithEndpoint(ctx context.Context, endpoint *http.Endpoint) context.Context {
 	return context.WithValue(ctx, ContextEndpointKey, endpoint)
+}
+
+func (mw endpointMiddleware) Config() config.Config {
+	return mw.next.Config()
 }
 
 func (mw endpointMiddleware) Save(ctx context.Context, customer *model.Customer) (err error) {
