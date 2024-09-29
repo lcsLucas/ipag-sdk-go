@@ -2,24 +2,25 @@ package customer
 
 import (
 	"context"
+	"net/http"
 
 	"github.com/lcslucas/ipag-sdk-go/config"
-	"github.com/lcslucas/ipag-sdk-go/internal/http"
+	internalHttp "github.com/lcslucas/ipag-sdk-go/internal/http"
 	"github.com/lcslucas/ipag-sdk-go/pkg/model"
 )
 
 type endpoints struct {
-	Save    *http.Endpoint
-	Update  *http.Endpoint
-	Find    *http.Endpoint
-	FindAll *http.Endpoint
-	Delete  *http.Endpoint
+	Save    *internalHttp.Endpoint
+	Update  *internalHttp.Endpoint
+	Find    *internalHttp.Endpoint
+	FindAll *internalHttp.Endpoint
+	Delete  *internalHttp.Endpoint
 }
 
 var Endpoints = endpoints{
-	Save: http.NewEndpoint(
-		http.WithMethod(http.POST),
-		http.WithURI("service/resources/customers")),
+	Save: internalHttp.NewEndpoint(
+		internalHttp.WithMethod(internalHttp.POST),
+		internalHttp.WithURI("service/resources/customers")),
 	// Update:  client.NewEndpoint(client.PUT, "v1/customers/{id}"),
 	// Find:    client.NewEndpoint(client.GET, "v1/customers/{id}"),
 	// FindAll: client.NewEndpoint(client.GET, "v1/customers"),
@@ -38,12 +39,16 @@ func EndpointMiddleware() ServiceMiddleware {
 	}
 }
 
-func contextWithEndpoint(ctx context.Context, endpoint *http.Endpoint) context.Context {
+func contextWithEndpoint(ctx context.Context, endpoint *internalHttp.Endpoint) context.Context {
 	return context.WithValue(ctx, ContextEndpointKey, endpoint)
 }
 
 func (mw endpointMiddleware) Config() config.Config {
 	return mw.next.Config()
+}
+
+func (mw endpointMiddleware) Request() *http.Request {
+	return mw.next.Request()
 }
 
 func (mw endpointMiddleware) Save(ctx context.Context, customer *model.Customer) (err error) {

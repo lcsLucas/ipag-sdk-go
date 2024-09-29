@@ -2,6 +2,7 @@ package customer
 
 import (
 	"context"
+	"net/http"
 
 	"github.com/lcslucas/ipag-sdk-go/config"
 	"github.com/lcslucas/ipag-sdk-go/pkg/model"
@@ -32,6 +33,10 @@ func DeserializeMiddleware() ServiceMiddleware {
 
 func (mw deserializeMiddleware) Config() config.Config {
 	return mw.next.Config()
+}
+
+func (mw deserializeMiddleware) Request() *http.Request {
+	return mw.next.Request()
 }
 
 func (mw deserializeMiddleware) Save(ctx context.Context, customer *model.Customer) (err error) {

@@ -18,7 +18,6 @@ type contextKey string
 const (
 	ContextEndpointKey contextKey = "customer-endpoint"
 	ContextRequestKey  contextKey = "customer-request"
-	ContextResponseKey contextKey = "customer-response"
 )
 
 type Service interface {
@@ -28,11 +27,13 @@ type Service interface {
 	FindAll(ctx context.Context, filters map[string]interface{}) ([]model.Customer, error)
 	Delete(ctx context.Context, id uint32) error
 	Config() config.Config
+	Request() *http.Request
 }
 
 type customerService struct {
-	client internalHttp.HTTPClient
-	config config.Config
+	client  internalHttp.HTTPClient
+	config  config.Config
+	request *http.Request
 }
 
 type ServiceMiddleware func(Service) Service
@@ -59,6 +60,10 @@ func (c *customerService) Config() config.Config {
 	return c.config
 }
 
+func (c *customerService) Request() *http.Request {
+	return c.request
+}
+
 func (c *customerService) Save(ctx context.Context, customer *model.Customer) error {
 	request, ok := ctx.Value(ContextRequestKey).(*http.Request)
 
@@ -66,7 +71,9 @@ func (c *customerService) Save(ctx context.Context, customer *model.Customer) er
 		return errors.New("request not found in context")
 	}
 
-	response, err := c.client.Do(request)
+	c.request = request
+
+	response, err := c.client.Do(c.request)
 
 	if err != nil {
 		return err
