@@ -19,7 +19,7 @@ type serializeMiddleware struct {
 	next Service
 }
 
-func SerializeMiddleware() ServiceMiddleware {
+func serialize() ServiceMiddleware {
 	return func(next Service) Service {
 		return &serializeMiddleware{
 			next: next,
@@ -37,6 +37,10 @@ func (sw serializeMiddleware) Config() config.Config {
 
 func (mw serializeMiddleware) Request() *http.Request {
 	return mw.next.Request()
+}
+
+func (mw serializeMiddleware) Response() *http.Response {
+	return mw.next.Response()
 }
 
 func (sw serializeMiddleware) Save(ctx context.Context, customer *model.Customer) (err error) {

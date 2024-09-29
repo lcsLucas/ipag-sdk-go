@@ -50,6 +50,10 @@ func (mw instrumentingMiddleware) Request() *http.Request {
 	return mw.next.Request()
 }
 
+func (mw instrumentingMiddleware) Response() *http.Response {
+	return mw.next.Response()
+}
+
 func (mw instrumentingMiddleware) Save(ctx context.Context, customer *model.Customer) (err error) {
 	defer mw.registerGeralMetrics(func(begin time.Time) {
 		mw.latencyMethods.Save.Observe(time.Since(begin).Seconds())
