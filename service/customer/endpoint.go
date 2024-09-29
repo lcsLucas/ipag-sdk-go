@@ -31,7 +31,7 @@ type endpointMiddleware struct {
 	next Service
 }
 
-func EndpointMiddleware() ServiceMiddleware {
+func endpoint() ServiceMiddleware {
 	return func(next Service) Service {
 		return &endpointMiddleware{
 			next: next,
@@ -49,6 +49,10 @@ func (mw endpointMiddleware) Config() config.Config {
 
 func (mw endpointMiddleware) Request() *http.Request {
 	return mw.next.Request()
+}
+
+func (mw endpointMiddleware) Response() *http.Response {
+	return mw.next.Response()
 }
 
 func (mw endpointMiddleware) Save(ctx context.Context, customer *model.Customer) (err error) {

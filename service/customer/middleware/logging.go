@@ -32,6 +32,10 @@ func (mw loggingMiddleware) Request() *http.Request {
 	return mw.next.Request()
 }
 
+func (mw loggingMiddleware) Response() *http.Response {
+	return mw.next.Response()
+}
+
 func (mw loggingMiddleware) Save(ctx context.Context, customer *model.Customer) (err error) {
 	defer func(begin time.Time) {
 		logger := log.With(mw.logger, "service", "customer", "method", "save")

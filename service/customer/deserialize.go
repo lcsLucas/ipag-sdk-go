@@ -2,6 +2,9 @@ package customer
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
+	"io"
 	"net/http"
 
 	"github.com/lcslucas/ipag-sdk-go/config"
@@ -12,7 +15,7 @@ type deserializeMiddleware struct {
 	next Service
 }
 
-func DeserializeMiddleware() ServiceMiddleware {
+func deserialize() ServiceMiddleware {
 	return func(next Service) Service {
 		return &deserializeMiddleware{
 			next: next,
@@ -39,8 +42,48 @@ func (mw deserializeMiddleware) Request() *http.Request {
 	return mw.next.Request()
 }
 
+func (mw deserializeMiddleware) Response() *http.Response {
+	return mw.next.Response()
+}
+
 func (mw deserializeMiddleware) Save(ctx context.Context, customer *model.Customer) (err error) {
 	err = mw.next.Save(ctx, customer)
+
+	if err != nil {
+		return
+	}
+
+	response := mw.next.Response()
+
+	defer response.Body.Close()
+
+	body, err := io.ReadAll(response.Body)
+
+	if err != nil {
+		return err
+	}
+
+	if response.StatusCode < http.StatusOK || response.StatusCode >= http.StatusMultipleChoices {
+		var errorData any
+		err = fmt.Errorf("request failed with status code %d", response.StatusCode)
+
+		if err := json.Unmarshal(body, &errorData); err != nil {
+			return fmt.Errorf("failed to parse error data: %w", err)
+		}
+
+		marshalErrorData, _ := json.MarshalIndent(errorData, "", "  ")
+
+		err = fmt.Errorf("%w: %s", err, marshalErrorData)
+
+		return err
+	}
+
+	err = json.Unmarshal(body, customer)
+
+	if err != nil {
+		err = fmt.Errorf("failed to parse response data: %w", err)
+	}
+
 	return
 }
 
