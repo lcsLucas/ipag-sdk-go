@@ -43,11 +43,11 @@ func NewService(config config.Config) Service {
 		config: config,
 	}
 
-	return chain(baseService, SerializeMiddleware(), EndpointMiddleware())
+	return use(baseService, SerializeMiddleware(), EndpointMiddleware())
 
 }
 
-func chain(service Service, middlewares ...ServiceMiddleware) Service {
+func use(service Service, middlewares ...ServiceMiddleware) Service {
 	for _, mw := range middlewares {
 		service = mw(service)
 	}
