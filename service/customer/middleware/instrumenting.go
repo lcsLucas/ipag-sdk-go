@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"context"
+	"net/http"
 	"time"
 
 	"github.com/lcslucas/ipag-sdk-go/config"
@@ -43,6 +44,10 @@ func (mw instrumentingMiddleware) registerGeralMetrics(next func(time.Time)) fun
 
 func (mw instrumentingMiddleware) Config() config.Config {
 	return mw.next.Config()
+}
+
+func (mw instrumentingMiddleware) Request() *http.Request {
+	return mw.next.Request()
 }
 
 func (mw instrumentingMiddleware) Save(ctx context.Context, customer *model.Customer) (err error) {

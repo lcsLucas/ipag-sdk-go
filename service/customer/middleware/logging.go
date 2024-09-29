@@ -3,6 +3,7 @@ package middleware
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"time"
 
 	"github.com/go-kit/log"
@@ -25,6 +26,10 @@ func LoggingMiddleware(logger log.Logger) customer.ServiceMiddleware {
 
 func (mw loggingMiddleware) Config() config.Config {
 	return mw.next.Config()
+}
+
+func (mw loggingMiddleware) Request() *http.Request {
+	return mw.next.Request()
 }
 
 func (mw loggingMiddleware) Save(ctx context.Context, customer *model.Customer) (err error) {

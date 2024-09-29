@@ -35,6 +35,10 @@ func (sw serializeMiddleware) Config() config.Config {
 	return sw.next.Config()
 }
 
+func (mw serializeMiddleware) Request() *http.Request {
+	return mw.next.Request()
+}
+
 func (sw serializeMiddleware) Save(ctx context.Context, customer *model.Customer) (err error) {
 	endpoint, ok := ctx.Value(ContextEndpointKey).(*internalHttp.Endpoint)
 
