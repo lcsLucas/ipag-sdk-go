@@ -78,7 +78,7 @@ func (mw deserializeMiddleware) Save(ctx context.Context, customer *model.Custom
 		return err
 	}
 
-	err = json.Unmarshal(body, customer)
+	err = json.Unmarshal(body, &customer)
 
 	if err != nil {
 		err = fmt.Errorf("failed to parse response data: %w", err)
